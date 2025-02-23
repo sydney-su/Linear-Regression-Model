@@ -48,19 +48,14 @@ class Linear_Regression():
             self.minVal[:, i] = self.X[:, i].min()
 
         self.X = self.X.astype(float)
-        ############### START TODO 1 ###############
-        # Normalize the data using the formula provided in lecture
+        # Normalize the data with min-max normalization
         if self.normalize:
            self.X = (self.X - self.minVal) / (self.maxVal - self.minVal)
-        ############### END TODO 1 ###############
 
-        ############### START TODO 2 ###############
-        # Add bias (if necessary) by concatanating a constant column into X
-        # Hint: go through HW1 Q5 might be helpful
+        # Add bias by concatanating a constant column into X
         if self.intercept:
             ones = np.ones((len(self.X), 1))
             self.X = np.hstack((self.X, ones))
-        ############### END TODO 2 ###############
 
         # initialize coefficient
         self.coef = self.init_weight if self.init_weight is not None \
@@ -72,19 +67,12 @@ class Linear_Regression():
     def gradient(self):
         cof = -2 / len(self.X)
 
-        ############### START TODO 3 ###############
         # Find prediction and gradient
-        # Hint: Find the model's prediction from the given inputs with the
-        #       coefficient, then calculate the gradient
-        # If you forgot the formula, find them in lecture 4 and 5
         pred = self.X @ self.coef
         diff = self.y - pred
         grad = cof * (self.X.T @ (diff))
-        ############### END TODO 3 ###############
 
-        ############### START TODO 4 ###############
         # Implement regularization penalty
-        # Hint: Use self.lam
         if self.penalty == 'l2':
             grad += 2 * self.lam * self.coef
         elif self.penalty == 'l1':
@@ -92,22 +80,18 @@ class Linear_Regression():
             grad[self.coef == 0] = 0
         else:
             pass
-        ############### END TODO 4 ###############
         return grad
 
     def gradient_descent(self):
         print('Start Training')
         for i in range(self.num_iter):
-            ############### START TODO 5 ###############
             # calculate prediction y based on current coefficients (self.coef)
             previous_y_hat = self.X @ self.coef
             grad = self.gradient()
             # calculate the new coefficients after incorporating the gradient
             temp_coef = self.coef - self.alpha * grad
             y_pred = self.X @ temp_coef
-            ############### END TODO 5 ###############
 
-            ############### START TODO 6 ###############
             # calculate regularization cost (alias: regularization loss) based on
             # self.coef and temp_coef
             if self.penalty == 'l2':
@@ -119,14 +103,11 @@ class Linear_Regression():
             else:
                 previous_reg_cost = 0
                 current_reg_cost = 0
-            ############### END TODO 6 ###############
 
-            ############### START TODO 7 ###############
             # Calculate error (alias: loss) using sum squared loss
             # and add regularization cost
             pre_error = np.sum(np.square(previous_y_hat - self.y)) + previous_reg_cost
             current_error = np.sum(np.square(y_pred - self.y)) + current_reg_cost
-            ############### END TODO 7 ###############
 
             # Early Stop: early stop is triggered if loss is not decreasing
             # for some number of iterations
@@ -136,9 +117,7 @@ class Linear_Regression():
                 print(f'End Training (Early Stopped at iteration {i})')
                 return self
 
-            ############### START TODO 8 ###############
             # Implement adaptive learning rate
-
             # Rules: if current error is smaller than previous error,
             # multiply the current learning rate by 1.3 and update coefficients,
             # otherwise by 0.9 and do nothing with coefficients
@@ -148,7 +127,6 @@ class Linear_Regression():
                 self.coef = temp_coef if self.adaptive else self.coef
             else:
                 self.alpha *= 0.9 if self.adaptive else self.alpha
-            ############### END TODO 8 ###############
 
             # record stats
             self.loss.append(float(current_error))
@@ -166,16 +144,12 @@ class Linear_Regression():
         for i in range(X.shape[1]):
             X_norm[:, i] = (X[:, i] - self.minVal[:, i]) / (self.maxVal[:, i] - self.minVal[:, i])
         X = X_norm
-        ############### START TODO 9 ###############
-        # add bias (if necessary, same as TODO 2)
+        
+        # add bias 
         if self.intercept:
             ones = np.ones((len(X), 1))
             X = np.hstack((X, ones))
 
         # Find the model's predictions
-        # Hint: Use matrix multiplication ('@' might come in handy here)
         y = X @ self.coef
         return y
-        ############### END TODO 9 ###############
-
-    # Congrats! You have reached the end of this model's implementation :)
